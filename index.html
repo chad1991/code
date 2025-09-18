@@ -1,1 +1,379 @@
+‎<!DOCTYPE html>
+‎<html lang="en">
+‎<head>
+‎  <meta charset="utf-8" />
+‎  <meta name="viewport" content="width=device-width,initial-scale=1" />
+‎  <title>All Provided Shift Codes</title>
+‎  <style>
+‎	:root {
+‎  	--bg:#f6f8fb;
+‎  	--card:#ffffff;
+‎  	--muted:#556;
+‎  	--accent:#0b5fff;
+‎  	--success:#0b9d58;
+‎  	--danger:#e74c3c;
+‎  	--shadow: 0 6px 18px rgba(20,30,60,0.06);
+‎  	font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+‎	}
+‎	body {
+‎  	margin:0;
+‎  	background:linear-gradient(180deg,#eef3ff 0%, var(--bg) 100%);
+‎  	min-height:100vh;
+‎  	padding:20px;
+‎  	color:#0b1b2b;
+‎	}
+‎	.container{ max-width:1200px; margin:0 auto; }
+‎	header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap;}
+‎	h1{margin:0;font-size:20px;}
+‎	.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+‎	input[type="search"]{
+‎  	padding:8px 12px;border-radius:8px;border:1px solid #dde6f2;background:var(--card);
+‎  	min-width:260px;box-shadow:var(--shadow);outline:none;
+‎	}
+‎	button{ padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:white;cursor:pointer; }
+‎	button.ghost{background:transparent;color:var(--accent);border:1px solid #dfe9ff;}
+‎	.card{background:var(--card);border-radius:12px;padding:12px;box-shadow:var(--shadow);}
+‎	table{width:100%;border-collapse:collapse;font-size:14px;min-width:720px;}
+‎	thead th{ text-align:left;padding:10px 12px;font-weight:700;color:var(--muted);position:relative;cursor:pointer;}
+‎	thead th .sort-arrow{font-size:11px;margin-left:8px;opacity:0.6}
+‎	tbody td{padding:10px 12px;border-top:1px solid #f2f4f7;vertical-align:middle;}
+‎	tbody tr:hover{background:#fbfcff}
+‎	.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:600;}
+‎	.overnight{ background:var(--danger); color:white; }
+‎	.ok{ background:var(--success); color:white; }
+‎	.small{ font-size:12px; color:var(--muted) }
+‎	.foot{margin-top:12px;display:flex;justify-content:space-between;align-items:center;}
+‎	@media (max-width:900px){ table{min-width:0;display:block;overflow:auto;} }
+‎	.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; }
+‎  </style>
+‎</head>
+‎<body>
+‎  <div class="container">
+‎	<header>
+‎  	<h1>All Provided Shift Codes</h1>
+‎  	<div class="controls">
+‎    	<input type="search" id="search" placeholder="Search by code or time...">
+‎    	<button id="reset" class="ghost">Reset</button>
+‎    	<button id="export">Export CSV</button>
+‎  	</div>
+‎	</header>
+‎	<div class="card">
+‎  	<table id="shiftTable">
+‎    	<thead>
+‎      	<tr>
+‎        	<th data-sort="code">Shift Code <span class="sort-arrow">⇅</span></th>
+‎        	<th data-sort="desc">Shift Description <span class="sort-arrow">⇅</span></th>
+‎        	<th>Duration</th>
+‎        	<th>Type</th>
+‎      	</tr>
+‎    	</thead>
+‎    	<tbody></tbody>
+‎  	</table>
+‎  	<div class="foot">
+‎    	<span id="count"></span>
+‎  	</div>
+‎	</div>
+‎  </div>
+‎
+‎<script>
+‎const shifts = [
+‎ { code: "721", desc: "03:30 AM - 02:00 AM" },
+‎  { code: "722", desc: "01:00 PM - 03:00 AM" },
+‎  { code: "723", desc: "02:30 PM - 08:00 PM" },
+‎  { code: "724", desc: "07:00 PM - 11:00 PM" },
+‎  { code: "725", desc: "09:00 AM - 01:00 PM" },
+‎  { code: "727", desc: "10:30 AM - 11:30 PM" },
+‎  { code: "728", desc: "12:30 PM - 11:30 PM" },
+‎  { code: "729", desc: "10:00 AM - 02:00 AM" },
+‎  { code: "730", desc: "02:00 PM - 04:00 AM" },
+‎  { code: "732", desc: "12:00 PM - 12:00 AM" },
+‎  { code: "733", desc: "06:00 PM - 08:00 PM" },
+‎  { code: "735", desc: "12:00 AM - 06:00 PM" },
+‎  { code: "738", desc: "09:30 AM - 03:30 PM" },
+‎  { code: "739", desc: "02:00 PM - 05:00 PM" },
+‎  { code: "740", desc: "11:30 AM - 05:00 PM" },
+‎  { code: "741", desc: "08:30 AM - 10:00 PM" },
+‎  { code: "743", desc: "08:30 PM - 06:00 AM" },
+‎  { code: "744", desc: "02:30 PM - 12:00 AM" },
+‎  { code: "745", desc: "04:00 AM - 06:30 PM" },
+‎  { code: "746", desc: "05:00 PM - 09:30 AM" },
+‎  { code: "747", desc: "06:00 PM - 08:00 AM" },
+‎  { code: "748", desc: "05:00 PM - 02:30 AM" },
+‎  { code: "749", desc: "03:00 AM - 09:00 PM" },
+‎  { code: "750", desc: "10:30 AM - 01:00 AM" },
+‎  { code: "751", desc: "12:00 AM - 08:30 PM" },
+‎  { code: "752", desc: "08:00 AM - 02:00 AM" },
+‎  { code: "1014", desc: "08:00 AM - 05:36 PM" },
+‎  { code: "1015", desc: "07:30 AM - 05:21 PM" },
+‎  { code: "1016", desc: "07:30 AM - 05:06 PM" },
+‎  { code: "1017", desc: "07:45 AM - 05:36 PM" },
+‎  { code: "1018", desc: "06:00 AM - 04:00 PM" },
+‎  { code: "1019", desc: "06:00 AM - 03:30 PM" },
+‎  { code: "1020", desc: "04:00 AM - 02:36 PM" },
+‎  { code: "1021", desc: "10:00 AM - 08:36 PM" },
+‎  { code: "1022", desc: "11:00 AM - 09:36 PM" },
+‎  { code: "1023", desc: "10:45 AM - 10:45 PM" },
+‎  { code: "1024", desc: "07:45 AM - 06:00 PM" },
+‎  { code: "1025", desc: "07:30 AM - 05:45 PM" },
+‎  { code: "1049", desc: "06:45 AM - 04:36 PM" },
+‎  { code: "1086", desc: "04:00 PM - 01:36 AM" },
+‎  { code: "1087", desc: "12:00 PM - 09:36 AM" },
+‎  { code: "1089", desc: "10:00 AM - 07:36 PM" },
+‎  { code: "1", desc: "DAY-OFF" },
+‎  { code: "8", desc: "09:45 AM - 06:45 PM" },
+‎  { code: "9", desc: "10:00 AM - 07:00 PM" },
+‎  { code: "10", desc: "10:30 AM - 07:30 PM" },
+‎  { code: "11", desc: "11:00 AM - 08:00 PM" },
+‎  { code: "12", desc: "11:30 AM - 08:30 PM" },
+‎  { code: "13", desc: "12:00 PM - 09:00 PM" },
+‎  { code: "14", desc: "12:30 PM - 09:30 PM" },
+‎  { code: "15", desc: "01:00 PM - 10:00 PM" },
+‎  { code: "16", desc: "07:00 AM - 04:00 PM" },
+‎  { code: "21", desc: "12:00 AM - 09:00 AM" },
+‎  { code: "22", desc: "09:00 AM - 06:00 PM" },
+‎  { code: "45", desc: "09:30 AM - 06:30 PM" },
+‎  { code: "46", desc: "11:30 AM - 08:30 PM" },
+‎  { code: "47", desc: "08:30 AM - 05:30 PM" },
+‎  { code: "48", desc: "09:15 AM - 06:15 PM" },
+‎  { code: "53", desc: "01:00 PM - 10:00 PM" },
+‎  { code: "54", desc: "01:30 PM - 10:30 PM" },
+‎  { code: "55", desc: "07:30 AM - 04:30 PM" },
+‎  { code: "71", desc: "08:00 AM - 05:00 PM" },
+‎  { code: "75", desc: "03:00 PM - 12:00 AM" },
+‎  { code: "78", desc: "09:50 AM - 06:50 PM" },
+‎  { code: "79", desc: "12:20 PM - 09:20 PM" },
+‎  { code: "80", desc: "12:15 PM - 09:15 PM" },
+‎  { code: "81", desc: "09:20 AM - 06:20 PM" },
+‎  { code: "83", desc: "11:45 AM - 08:45 PM" },
+‎  { code: "84", desc: "11:15 AM - 08:15 PM" },
+‎  { code: "85", desc: "12:40 PM - 09:40 PM" },
+‎  { code: "86", desc: "09:35 AM - 06:35 PM" },
+‎  { code: "87", desc: "12:55 PM - 09:55 PM" },
+‎  { code: "88", desc: "09:25 AM - 06:25 PM" },
+‎  { code: "89", desc: "11:10 AM - 08:10 PM" },
+‎  { code: "90", desc: "01:05 PM - 10:05 PM" },
+‎  { code: "91", desc: "08:45 AM - 05:45 PM" },
+‎  { code: "92", desc: "12:25 PM - 09:25 PM" },
+‎  { code: "93", desc: "10:45 AM - 07:45 PM" },
+‎  { code: "95", desc: "01:20 PM - 10:20 PM" },
+‎  { code: "96", desc: "01:15 PM - 10:15 PM" },
+‎  { code: "97", desc: "11:20 AM - 08:20 PM" },
+‎  { code: "98", desc: "06:00 AM - 03:00 PM" },
+‎  { code: "108", desc: "12:50 PM - 09:50 PM" },
+‎  { code: "111", desc: "12:20 PM - 09:20 PM" },
+‎  { code: "119", desc: "08:25 AM - 05:25 PM" },
+‎  { code: "120", desc: "10:25 AM - 07:25 PM" },
+‎  { code: "122", desc: "12:10 PM - 09:10 PM" },
+‎  { code: "123", desc: "12:45 PM - 09:45 PM" },
+‎  { code: "139", desc: "12:45 PM - 09:45 PM" },
+‎  { code: "140", desc: "01:15 PM - 10:15 PM" },
+‎  { code: "142", desc: "01:00 PM - 10:00 PM" },
+‎  { code: "157", desc: "09:40 AM - 06:40 PM" },
+‎  { code: "158", desc: "12:50 PM - 09:20 PM" },
+‎  { code: "159", desc: "02:00 PM - 11:00 PM" },
+‎  { code: "160", desc: "02:30 PM - 11:30 PM" },
+‎  { code: "171", desc: "03:30 PM - 12:30 AM" },
+‎  { code: "177", desc: "06:30 AM - 03:30 PM" },
+‎  { code: "202", desc: "05:30 AM - 02:30 PM" },
+‎  { code: "206", desc: "05:30 AM - 02:30 PM" },
+‎  { code: "215", desc: "05:00 AM - 02:00 PM" },
+‎  { code: "229", desc: "01:15 PM - 10:15 PM" },
+‎  { code: "231", desc: "08:35 AM - 05:35 PM" },
+‎  { code: "252", desc: "09:40 AM - 06:40 PM" },
+‎  { code: "255", desc: "08:15 AM - 05:15 PM" },
+‎  { code: "261", desc: "10:50 AM - 07:50 PM" },
+‎  { code: "266", desc: "08:20 AM - 05:20 PM" },
+‎  { code: "276", desc: "08:50 AM - 05:50 PM" },
+‎  { code: "279", desc: "09:55 AM - 06:55 PM" },
+‎  { code: "280", desc: "12:05 PM - 09:05 PM" },
+‎  { code: "285", desc: "04:00 AM - 01:00 PM" },
+‎  { code: "317", desc: "10:55 AM - 07:55 PM" },
+‎  { code: "324", desc: "10:15 AM - 07:15 PM" },
+‎  { code: "325", desc: "08:40 AM - 05:40 PM" },
+‎  { code: "1057", desc: "06:45 AM - 05:00 PM" },
+‎  { code: "1058", desc: "07:00 AM - 06:36 PM" },
+‎  { code: "1059", desc: "07:00 AM - 07:06 PM" },
+‎  { code: "1060", desc: "03:00 PM - 12:51 PM" },
+‎  { code: "1062", desc: "03:30 AM - 11:30 PM" },
+‎  { code: "1063", desc: "01:00 PM - 10:36 PM" },
+‎  { code: "1065", desc: "07:00 AM - 06:00 PM" },
+‎  { code: "1066", desc: "09:30 PM - 08:30 AM" },
+‎  { code: "1068", desc: "06:45 AM - 05:45 PM" },
+‎  { code: "1069", desc: "07:45 AM - 06:03 PM" },
+‎  { code: "1070", desc: "05:00 AM - 06:00 PM" },
+‎  { code: "1072", desc: "07:10 AM - 06:00 PM" },
+‎  { code: "1073", desc: "07:15 AM - 06:00 PM" },
+‎  { code: "1074", desc: "07:21 AM - 06:00 PM" },
+‎  { code: "1075", desc: "07:18 AM - 05:36 PM" },
+‎  { code: "1076", desc: "09:00 AM - 08:06 PM" },
+‎  { code: "1077", desc: "06:55 AM - 05:45 PM" },
+‎  { code: "1078", desc: "07:20 AM - 05:45 PM" },
+‎  { code: "1079", desc: "07:00 AM - 05:45 PM" },
+‎  { code: "1080", desc: "07:05 AM - 05:45 PM" },
+‎  { code: "1081", desc: "07:06 AM - 06:00 PM" },
+‎  { code: "1082", desc: "06:10 AM - 05:00 PM" },
+‎  { code: "1083", desc: "06:15 AM - 05:00 PM" },
+‎  { code: "1084", desc: "06:21 AM - 05:00 PM" },
+‎  { code: "1085", desc: "07:06 AM - 05:45 PM" },
+‎  { code: "1091", desc: "06:30 AM - 05:06 PM" },
+‎  { code: "806", desc: "04:30 PM - 02:00 AM" },
+‎  { code: "807", desc: "07:00 PM - 07:00 AM" },
+‎  { code: "811", desc: "03:00 AM - 12:30 AM" },
+‎  { code: "812", desc: "08:00 AM - 04:00 PM" },
+‎  { code: "813", desc: "08:00 AM - 04:00 PM" },
+‎  { code: "814", desc: "09:30 AM - 04:30 PM" },
+‎  { code: "815", desc: "09:30 AM - 05:30 PM" },
+‎  { code: "818", desc: "09:30 AM - 07:00 PM" },
+‎  { code: "819", desc: "01:30 PM - 05:30 PM" },
+‎  { code: "821", desc: "12:00 AM - 05:00 PM" },
+‎  { code: "825", desc: "06:30 PM - 05:00 AM" },
+‎  { code: "826", desc: "06:00 PM - 05:00 AM" },
+‎  { code: "827", desc: "12:30 PM - 02:30 PM" },
+‎  { code: "829", desc: "08:30 AM - 10:30 PM" },
+‎  { code: "833", desc: "09:00 AM - 02:00 PM" },
+‎  { code: "834", desc: "09:45 AM - 01:45 AM" },
+‎  { code: "835", desc: "09:45 AM - 02:45 AM" },
+‎  { code: "838", desc: "09:45 AM - 12:45 AM" },
+‎  { code: "840", desc: "09:00 AM - 03:30 AM" },
+‎  { code: "842", desc: "10:45 AM - 09:00 PM" },
+‎  { code: "843", desc: "10:45 AM - 10:00 PM" },
+‎  { code: "844", desc: "11:00 AM - 03:30 AM" },
+‎  { code: "845", desc: "11:00 AM - 03:30 AM" },
+‎  { code: "848", desc: "08:30 PM - 05:30 AM" },
+‎  { code: "1010", desc: "06:00 AM - 04:36 PM" },
+‎  { code: "1011", desc: "07:00 AM - 04:36 PM" },
+‎  { code: "373", desc: "10:00 PM - 07:00 AM" },
+‎  { code: "374", desc: "02:20 PM - 11:20 PM" },
+‎  { code: "376", desc: "09:20 AM - 06:20 PM" },
+‎  { code: "378", desc: "07:00 AM - 04:00 PM" },
+‎  { code: "381", desc: "07:35 AM - 04:35 PM" },
+‎  { code: "382", desc: "01:45 PM - 10:45 PM" },
+‎  { code: "383", desc: "01:15 PM - 10:15 PM" },
+‎  { code: "384", desc: "02:15 PM - 11:15 PM" },
+‎  { code: "386", desc: "08:10 AM - 05:10 PM" },
+‎  { code: "387", desc: "07:55 AM - 04:55 PM" },
+‎  { code: "388", desc: "07:15 AM - 04:15 PM" },
+‎  { code: "390", desc: "03:00 PM - 12:00 AM" },
+‎  { code: "395", desc: "01:50 PM - 10:50 PM" },
+‎  { code: "403", desc: "06:45 AM - 03:45 PM" },
+‎  { code: "404", desc: "03:10 PM - 12:10 AM" },
+‎  { code: "407", desc: "01:15 PM - 10:15 PM" },
+‎  { code: "412", desc: "03:15 PM - 12:15 AM" },
+‎  { code: "416", desc: "10:20 AM - 07:20 PM" },
+‎  { code: "418", desc: "05:00 PM - 02:00 AM" },
+‎  { code: "419", desc: "07:45 AM - 04:45 PM" },
+‎  { code: "421", desc: "11:35 AM - 08:35 PM" },
+‎  { code: "424", desc: "02:00 AM - 11:00 AM" },
+‎  { code: "425", desc: "01:00 AM - 11:00 AM" },
+‎  { code: "429", desc: "11:00 PM - 08:00 AM" },
+‎  { code: "430", desc: "07:00 PM - 04:00 AM" },
+‎  { code: "755", desc: "11:30 AM - 03:30 AM" },
+‎  { code: "758", desc: "12:00 PM - 01:00 AM" },
+‎  { code: "760", desc: "11:00 AM - 11:00 AM" },
+‎  { code: "761", desc: "11:30 AM - 02:30 AM" },
+‎  { code: "762", desc: "11:30 AM - 10:30 AM" },
+‎  { code: "763", desc: "02:00 PM - 03:30 AM" },
+‎  { code: "764", desc: "02:30 PM - 03:30 AM" },
+‎  { code: "765", desc: "10:30 AM - 03:30 AM" },
+‎  { code: "766", desc: "02:00 PM - 03:30 AM" },
+‎  { code: "767", desc: "07:00 AM - 12:00 PM" },
+‎  { code: "768", desc: "08:00 AM - 12:00 PM" },
+‎  { code: "774", desc: "09:00 AM - 01:30 PM" },
+‎  { code: "775", desc: "05:30 PM - 07:30 AM" },
+‎  { code: "776", desc: "06:00 PM - 07:00 AM" },
+‎  { code: "777", desc: "07:00 AM - 06:00 PM" },
+‎  { code: "778", desc: "11:00 AM - 12:30 PM" },
+‎  { code: "779", desc: "10:40 PM - 09:10 AM" },
+‎  { code: "780", desc: "04:30 AM - 01:30 PM" },
+‎  { code: "781", desc: "08:30 AM - 01:00 AM" },
+‎  { code: "782", desc: "07:30 AM - 01:00 AM" },
+‎  { code: "783", desc: "05:00 PM - 09:00 PM" },
+‎  { code: "791", desc: "06:00 PM - 03:00 AM" },
+‎  { code: "792", desc: "12:00 PM - 04:00 AM" },
+‎  { code: "794", desc: "02:30 AM - 06:00 PM" },
+‎  { code: "795", desc: "04:30 PM - 07:30 PM" },
+‎  { code: "796", desc: "05:00 PM - 04:00 AM" },
+
+‎	];
+‎/ Parse "hh:mm AM/PM" to minutes since midnight
+‎function parseTime(str){
+‎  const [time,ampm]=str.split(" ");
+‎  let [h,m]=time.split(":").map(Number);
+‎  if(ampm==="PM"&&h!==12)h+=12;
+‎  if(ampm==="AM"&&h===12)h=0;
+‎  return h*60+m;
+‎}
+‎
+‎function renderTable(data){
+‎  const tbody=document.querySelector("#shiftTable tbody");
+‎  tbody.innerHTML="";
+‎  data.forEach(s=>{
+‎	let dur="";let type="";
+‎	if(s.desc.toLowerCase().includes("day-off")){
+‎  	dur="—"; type="—";
+‎	} else {
+‎  	const [start,end]=s.desc.split(" - ");
+‎  	const st=parseTime(start), et=parseTime(end);
+‎  	let diff=et-st; let overnight=false;
+‎  	if(diff<=0){ diff+=1440; overnight=true; }
+‎  	const h=Math.floor(diff/60), m=diff%60;
+‎  	dur=`${h}h ${m}m`;
+‎  	type=overnight? `<span class="badge overnight">Overnight</span>`:`<span class="badge ok">Normal</span>`;
+‎	}
+‎	const tr=document.createElement("tr");
+‎	tr.innerHTML=`
+‎  	<td class="mono">${s.code}</td>
+‎  	<td>${s.desc}</td>
+‎  	<td>${dur}</td>
+‎  	<td>${type}</td>`;
+‎	tbody.appendChild(tr);
+‎  });
+‎  document.getElementById("count").textContent=`${data.length} shift codes`;
+‎}
+‎
+‎let current=shifts.slice();
+‎renderTable(current);
+‎
+‎// Search
+‎document.getElementById("search").addEventListener("input",e=>{
+‎  const q=e.target.value.toLowerCase();
+‎  current=shifts.filter(s=>s.code.toLowerCase().includes(q)||s.desc.toLowerCase().includes(q));
+‎  renderTable(current);
+‎});
+‎
+‎// Reset
+‎document.getElementById("reset").addEventListener("click",()=>{
+‎  document.getElementById("search").value="";
+‎  current=shifts.slice();
+‎  renderTable(current);
+‎});
+‎
+‎// Sort
+‎document.querySelectorAll("thead th[data-sort]").forEach(th=>{
+‎  let asc=true;
+‎  th.addEventListener("click",()=>{
+‎	const key=th.getAttribute("data-sort");
+‎	current.sort((a,b)=>{
+‎  	if(key==="code")return asc? a.code.localeCompare(b.code): b.code.localeCompare(a.code);
+‎  	return asc? a.desc.localeCompare(b.desc): b.desc.localeCompare(a.desc);
+‎	});
+‎	asc=!asc;
+‎	renderTable(current);
+‎  });
+‎});
+‎
+‎// Export
+‎document.getElementById("export").addEventListener("click",()=>{
+‎  let csv="Code,Description\n";
+‎  current.forEach(s=>{ csv+=`"${s.code}","${s.desc}"\n`; });
+‎  const blob=new Blob([csv],{type:"text/csv"});
+‎  const url=URL.createObjectURL(blob);
+‎  const a=document.createElement("a");
+‎  a.href=url;a.download="shifts.csv";a.click();
+‎  URL.revokeObjectURL(url);
+‎});
+‎</script>
+‎</body>
+‎</html>
+‎
 
