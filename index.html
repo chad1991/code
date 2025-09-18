@@ -1,379 +1,281 @@
-‎<!DOCTYPE html>
-‎<html lang="en">
-‎<head>
-‎  <meta charset="utf-8" />
-‎  <meta name="viewport" content="width=device-width,initial-scale=1" />
-‎  <title>All Provided Shift Codes</title>
-‎  <style>
-‎	:root {
-‎  	--bg:#f6f8fb;
-‎  	--card:#ffffff;
-‎  	--muted:#556;
-‎  	--accent:#0b5fff;
-‎  	--success:#0b9d58;
-‎  	--danger:#e74c3c;
-‎  	--shadow: 0 6px 18px rgba(20,30,60,0.06);
-‎  	font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-‎	}
-‎	body {
-‎  	margin:0;
-‎  	background:linear-gradient(180deg,#eef3ff 0%, var(--bg) 100%);
-‎  	min-height:100vh;
-‎  	padding:20px;
-‎  	color:#0b1b2b;
-‎	}
-‎	.container{ max-width:1200px; margin:0 auto; }
-‎	header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap;}
-‎	h1{margin:0;font-size:20px;}
-‎	.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-‎	input[type="search"]{
-‎  	padding:8px 12px;border-radius:8px;border:1px solid #dde6f2;background:var(--card);
-‎  	min-width:260px;box-shadow:var(--shadow);outline:none;
-‎	}
-‎	button{ padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:white;cursor:pointer; }
-‎	button.ghost{background:transparent;color:var(--accent);border:1px solid #dfe9ff;}
-‎	.card{background:var(--card);border-radius:12px;padding:12px;box-shadow:var(--shadow);}
-‎	table{width:100%;border-collapse:collapse;font-size:14px;min-width:720px;}
-‎	thead th{ text-align:left;padding:10px 12px;font-weight:700;color:var(--muted);position:relative;cursor:pointer;}
-‎	thead th .sort-arrow{font-size:11px;margin-left:8px;opacity:0.6}
-‎	tbody td{padding:10px 12px;border-top:1px solid #f2f4f7;vertical-align:middle;}
-‎	tbody tr:hover{background:#fbfcff}
-‎	.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:600;}
-‎	.overnight{ background:var(--danger); color:white; }
-‎	.ok{ background:var(--success); color:white; }
-‎	.small{ font-size:12px; color:var(--muted) }
-‎	.foot{margin-top:12px;display:flex;justify-content:space-between;align-items:center;}
-‎	@media (max-width:900px){ table{min-width:0;display:block;overflow:auto;} }
-‎	.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; }
-‎  </style>
-‎</head>
-‎<body>
-‎  <div class="container">
-‎	<header>
-‎  	<h1>All Provided Shift Codes</h1>
-‎  	<div class="controls">
-‎    	<input type="search" id="search" placeholder="Search by code or time...">
-‎    	<button id="reset" class="ghost">Reset</button>
-‎    	<button id="export">Export CSV</button>
-‎  	</div>
-‎	</header>
-‎	<div class="card">
-‎  	<table id="shiftTable">
-‎    	<thead>
-‎      	<tr>
-‎        	<th data-sort="code">Shift Code <span class="sort-arrow">⇅</span></th>
-‎        	<th data-sort="desc">Shift Description <span class="sort-arrow">⇅</span></th>
-‎        	<th>Duration</th>
-‎        	<th>Type</th>
-‎      	</tr>
-‎    	</thead>
-‎    	<tbody></tbody>
-‎  	</table>
-‎  	<div class="foot">
-‎    	<span id="count"></span>
-‎  	</div>
-‎	</div>
-‎  </div>
-‎
-‎<script>
-‎const shifts = [
-‎ { code: "721", desc: "03:30 AM - 02:00 AM" },
-‎  { code: "722", desc: "01:00 PM - 03:00 AM" },
-‎  { code: "723", desc: "02:30 PM - 08:00 PM" },
-‎  { code: "724", desc: "07:00 PM - 11:00 PM" },
-‎  { code: "725", desc: "09:00 AM - 01:00 PM" },
-‎  { code: "727", desc: "10:30 AM - 11:30 PM" },
-‎  { code: "728", desc: "12:30 PM - 11:30 PM" },
-‎  { code: "729", desc: "10:00 AM - 02:00 AM" },
-‎  { code: "730", desc: "02:00 PM - 04:00 AM" },
-‎  { code: "732", desc: "12:00 PM - 12:00 AM" },
-‎  { code: "733", desc: "06:00 PM - 08:00 PM" },
-‎  { code: "735", desc: "12:00 AM - 06:00 PM" },
-‎  { code: "738", desc: "09:30 AM - 03:30 PM" },
-‎  { code: "739", desc: "02:00 PM - 05:00 PM" },
-‎  { code: "740", desc: "11:30 AM - 05:00 PM" },
-‎  { code: "741", desc: "08:30 AM - 10:00 PM" },
-‎  { code: "743", desc: "08:30 PM - 06:00 AM" },
-‎  { code: "744", desc: "02:30 PM - 12:00 AM" },
-‎  { code: "745", desc: "04:00 AM - 06:30 PM" },
-‎  { code: "746", desc: "05:00 PM - 09:30 AM" },
-‎  { code: "747", desc: "06:00 PM - 08:00 AM" },
-‎  { code: "748", desc: "05:00 PM - 02:30 AM" },
-‎  { code: "749", desc: "03:00 AM - 09:00 PM" },
-‎  { code: "750", desc: "10:30 AM - 01:00 AM" },
-‎  { code: "751", desc: "12:00 AM - 08:30 PM" },
-‎  { code: "752", desc: "08:00 AM - 02:00 AM" },
-‎  { code: "1014", desc: "08:00 AM - 05:36 PM" },
-‎  { code: "1015", desc: "07:30 AM - 05:21 PM" },
-‎  { code: "1016", desc: "07:30 AM - 05:06 PM" },
-‎  { code: "1017", desc: "07:45 AM - 05:36 PM" },
-‎  { code: "1018", desc: "06:00 AM - 04:00 PM" },
-‎  { code: "1019", desc: "06:00 AM - 03:30 PM" },
-‎  { code: "1020", desc: "04:00 AM - 02:36 PM" },
-‎  { code: "1021", desc: "10:00 AM - 08:36 PM" },
-‎  { code: "1022", desc: "11:00 AM - 09:36 PM" },
-‎  { code: "1023", desc: "10:45 AM - 10:45 PM" },
-‎  { code: "1024", desc: "07:45 AM - 06:00 PM" },
-‎  { code: "1025", desc: "07:30 AM - 05:45 PM" },
-‎  { code: "1049", desc: "06:45 AM - 04:36 PM" },
-‎  { code: "1086", desc: "04:00 PM - 01:36 AM" },
-‎  { code: "1087", desc: "12:00 PM - 09:36 AM" },
-‎  { code: "1089", desc: "10:00 AM - 07:36 PM" },
-‎  { code: "1", desc: "DAY-OFF" },
-‎  { code: "8", desc: "09:45 AM - 06:45 PM" },
-‎  { code: "9", desc: "10:00 AM - 07:00 PM" },
-‎  { code: "10", desc: "10:30 AM - 07:30 PM" },
-‎  { code: "11", desc: "11:00 AM - 08:00 PM" },
-‎  { code: "12", desc: "11:30 AM - 08:30 PM" },
-‎  { code: "13", desc: "12:00 PM - 09:00 PM" },
-‎  { code: "14", desc: "12:30 PM - 09:30 PM" },
-‎  { code: "15", desc: "01:00 PM - 10:00 PM" },
-‎  { code: "16", desc: "07:00 AM - 04:00 PM" },
-‎  { code: "21", desc: "12:00 AM - 09:00 AM" },
-‎  { code: "22", desc: "09:00 AM - 06:00 PM" },
-‎  { code: "45", desc: "09:30 AM - 06:30 PM" },
-‎  { code: "46", desc: "11:30 AM - 08:30 PM" },
-‎  { code: "47", desc: "08:30 AM - 05:30 PM" },
-‎  { code: "48", desc: "09:15 AM - 06:15 PM" },
-‎  { code: "53", desc: "01:00 PM - 10:00 PM" },
-‎  { code: "54", desc: "01:30 PM - 10:30 PM" },
-‎  { code: "55", desc: "07:30 AM - 04:30 PM" },
-‎  { code: "71", desc: "08:00 AM - 05:00 PM" },
-‎  { code: "75", desc: "03:00 PM - 12:00 AM" },
-‎  { code: "78", desc: "09:50 AM - 06:50 PM" },
-‎  { code: "79", desc: "12:20 PM - 09:20 PM" },
-‎  { code: "80", desc: "12:15 PM - 09:15 PM" },
-‎  { code: "81", desc: "09:20 AM - 06:20 PM" },
-‎  { code: "83", desc: "11:45 AM - 08:45 PM" },
-‎  { code: "84", desc: "11:15 AM - 08:15 PM" },
-‎  { code: "85", desc: "12:40 PM - 09:40 PM" },
-‎  { code: "86", desc: "09:35 AM - 06:35 PM" },
-‎  { code: "87", desc: "12:55 PM - 09:55 PM" },
-‎  { code: "88", desc: "09:25 AM - 06:25 PM" },
-‎  { code: "89", desc: "11:10 AM - 08:10 PM" },
-‎  { code: "90", desc: "01:05 PM - 10:05 PM" },
-‎  { code: "91", desc: "08:45 AM - 05:45 PM" },
-‎  { code: "92", desc: "12:25 PM - 09:25 PM" },
-‎  { code: "93", desc: "10:45 AM - 07:45 PM" },
-‎  { code: "95", desc: "01:20 PM - 10:20 PM" },
-‎  { code: "96", desc: "01:15 PM - 10:15 PM" },
-‎  { code: "97", desc: "11:20 AM - 08:20 PM" },
-‎  { code: "98", desc: "06:00 AM - 03:00 PM" },
-‎  { code: "108", desc: "12:50 PM - 09:50 PM" },
-‎  { code: "111", desc: "12:20 PM - 09:20 PM" },
-‎  { code: "119", desc: "08:25 AM - 05:25 PM" },
-‎  { code: "120", desc: "10:25 AM - 07:25 PM" },
-‎  { code: "122", desc: "12:10 PM - 09:10 PM" },
-‎  { code: "123", desc: "12:45 PM - 09:45 PM" },
-‎  { code: "139", desc: "12:45 PM - 09:45 PM" },
-‎  { code: "140", desc: "01:15 PM - 10:15 PM" },
-‎  { code: "142", desc: "01:00 PM - 10:00 PM" },
-‎  { code: "157", desc: "09:40 AM - 06:40 PM" },
-‎  { code: "158", desc: "12:50 PM - 09:20 PM" },
-‎  { code: "159", desc: "02:00 PM - 11:00 PM" },
-‎  { code: "160", desc: "02:30 PM - 11:30 PM" },
-‎  { code: "171", desc: "03:30 PM - 12:30 AM" },
-‎  { code: "177", desc: "06:30 AM - 03:30 PM" },
-‎  { code: "202", desc: "05:30 AM - 02:30 PM" },
-‎  { code: "206", desc: "05:30 AM - 02:30 PM" },
-‎  { code: "215", desc: "05:00 AM - 02:00 PM" },
-‎  { code: "229", desc: "01:15 PM - 10:15 PM" },
-‎  { code: "231", desc: "08:35 AM - 05:35 PM" },
-‎  { code: "252", desc: "09:40 AM - 06:40 PM" },
-‎  { code: "255", desc: "08:15 AM - 05:15 PM" },
-‎  { code: "261", desc: "10:50 AM - 07:50 PM" },
-‎  { code: "266", desc: "08:20 AM - 05:20 PM" },
-‎  { code: "276", desc: "08:50 AM - 05:50 PM" },
-‎  { code: "279", desc: "09:55 AM - 06:55 PM" },
-‎  { code: "280", desc: "12:05 PM - 09:05 PM" },
-‎  { code: "285", desc: "04:00 AM - 01:00 PM" },
-‎  { code: "317", desc: "10:55 AM - 07:55 PM" },
-‎  { code: "324", desc: "10:15 AM - 07:15 PM" },
-‎  { code: "325", desc: "08:40 AM - 05:40 PM" },
-‎  { code: "1057", desc: "06:45 AM - 05:00 PM" },
-‎  { code: "1058", desc: "07:00 AM - 06:36 PM" },
-‎  { code: "1059", desc: "07:00 AM - 07:06 PM" },
-‎  { code: "1060", desc: "03:00 PM - 12:51 PM" },
-‎  { code: "1062", desc: "03:30 AM - 11:30 PM" },
-‎  { code: "1063", desc: "01:00 PM - 10:36 PM" },
-‎  { code: "1065", desc: "07:00 AM - 06:00 PM" },
-‎  { code: "1066", desc: "09:30 PM - 08:30 AM" },
-‎  { code: "1068", desc: "06:45 AM - 05:45 PM" },
-‎  { code: "1069", desc: "07:45 AM - 06:03 PM" },
-‎  { code: "1070", desc: "05:00 AM - 06:00 PM" },
-‎  { code: "1072", desc: "07:10 AM - 06:00 PM" },
-‎  { code: "1073", desc: "07:15 AM - 06:00 PM" },
-‎  { code: "1074", desc: "07:21 AM - 06:00 PM" },
-‎  { code: "1075", desc: "07:18 AM - 05:36 PM" },
-‎  { code: "1076", desc: "09:00 AM - 08:06 PM" },
-‎  { code: "1077", desc: "06:55 AM - 05:45 PM" },
-‎  { code: "1078", desc: "07:20 AM - 05:45 PM" },
-‎  { code: "1079", desc: "07:00 AM - 05:45 PM" },
-‎  { code: "1080", desc: "07:05 AM - 05:45 PM" },
-‎  { code: "1081", desc: "07:06 AM - 06:00 PM" },
-‎  { code: "1082", desc: "06:10 AM - 05:00 PM" },
-‎  { code: "1083", desc: "06:15 AM - 05:00 PM" },
-‎  { code: "1084", desc: "06:21 AM - 05:00 PM" },
-‎  { code: "1085", desc: "07:06 AM - 05:45 PM" },
-‎  { code: "1091", desc: "06:30 AM - 05:06 PM" },
-‎  { code: "806", desc: "04:30 PM - 02:00 AM" },
-‎  { code: "807", desc: "07:00 PM - 07:00 AM" },
-‎  { code: "811", desc: "03:00 AM - 12:30 AM" },
-‎  { code: "812", desc: "08:00 AM - 04:00 PM" },
-‎  { code: "813", desc: "08:00 AM - 04:00 PM" },
-‎  { code: "814", desc: "09:30 AM - 04:30 PM" },
-‎  { code: "815", desc: "09:30 AM - 05:30 PM" },
-‎  { code: "818", desc: "09:30 AM - 07:00 PM" },
-‎  { code: "819", desc: "01:30 PM - 05:30 PM" },
-‎  { code: "821", desc: "12:00 AM - 05:00 PM" },
-‎  { code: "825", desc: "06:30 PM - 05:00 AM" },
-‎  { code: "826", desc: "06:00 PM - 05:00 AM" },
-‎  { code: "827", desc: "12:30 PM - 02:30 PM" },
-‎  { code: "829", desc: "08:30 AM - 10:30 PM" },
-‎  { code: "833", desc: "09:00 AM - 02:00 PM" },
-‎  { code: "834", desc: "09:45 AM - 01:45 AM" },
-‎  { code: "835", desc: "09:45 AM - 02:45 AM" },
-‎  { code: "838", desc: "09:45 AM - 12:45 AM" },
-‎  { code: "840", desc: "09:00 AM - 03:30 AM" },
-‎  { code: "842", desc: "10:45 AM - 09:00 PM" },
-‎  { code: "843", desc: "10:45 AM - 10:00 PM" },
-‎  { code: "844", desc: "11:00 AM - 03:30 AM" },
-‎  { code: "845", desc: "11:00 AM - 03:30 AM" },
-‎  { code: "848", desc: "08:30 PM - 05:30 AM" },
-‎  { code: "1010", desc: "06:00 AM - 04:36 PM" },
-‎  { code: "1011", desc: "07:00 AM - 04:36 PM" },
-‎  { code: "373", desc: "10:00 PM - 07:00 AM" },
-‎  { code: "374", desc: "02:20 PM - 11:20 PM" },
-‎  { code: "376", desc: "09:20 AM - 06:20 PM" },
-‎  { code: "378", desc: "07:00 AM - 04:00 PM" },
-‎  { code: "381", desc: "07:35 AM - 04:35 PM" },
-‎  { code: "382", desc: "01:45 PM - 10:45 PM" },
-‎  { code: "383", desc: "01:15 PM - 10:15 PM" },
-‎  { code: "384", desc: "02:15 PM - 11:15 PM" },
-‎  { code: "386", desc: "08:10 AM - 05:10 PM" },
-‎  { code: "387", desc: "07:55 AM - 04:55 PM" },
-‎  { code: "388", desc: "07:15 AM - 04:15 PM" },
-‎  { code: "390", desc: "03:00 PM - 12:00 AM" },
-‎  { code: "395", desc: "01:50 PM - 10:50 PM" },
-‎  { code: "403", desc: "06:45 AM - 03:45 PM" },
-‎  { code: "404", desc: "03:10 PM - 12:10 AM" },
-‎  { code: "407", desc: "01:15 PM - 10:15 PM" },
-‎  { code: "412", desc: "03:15 PM - 12:15 AM" },
-‎  { code: "416", desc: "10:20 AM - 07:20 PM" },
-‎  { code: "418", desc: "05:00 PM - 02:00 AM" },
-‎  { code: "419", desc: "07:45 AM - 04:45 PM" },
-‎  { code: "421", desc: "11:35 AM - 08:35 PM" },
-‎  { code: "424", desc: "02:00 AM - 11:00 AM" },
-‎  { code: "425", desc: "01:00 AM - 11:00 AM" },
-‎  { code: "429", desc: "11:00 PM - 08:00 AM" },
-‎  { code: "430", desc: "07:00 PM - 04:00 AM" },
-‎  { code: "755", desc: "11:30 AM - 03:30 AM" },
-‎  { code: "758", desc: "12:00 PM - 01:00 AM" },
-‎  { code: "760", desc: "11:00 AM - 11:00 AM" },
-‎  { code: "761", desc: "11:30 AM - 02:30 AM" },
-‎  { code: "762", desc: "11:30 AM - 10:30 AM" },
-‎  { code: "763", desc: "02:00 PM - 03:30 AM" },
-‎  { code: "764", desc: "02:30 PM - 03:30 AM" },
-‎  { code: "765", desc: "10:30 AM - 03:30 AM" },
-‎  { code: "766", desc: "02:00 PM - 03:30 AM" },
-‎  { code: "767", desc: "07:00 AM - 12:00 PM" },
-‎  { code: "768", desc: "08:00 AM - 12:00 PM" },
-‎  { code: "774", desc: "09:00 AM - 01:30 PM" },
-‎  { code: "775", desc: "05:30 PM - 07:30 AM" },
-‎  { code: "776", desc: "06:00 PM - 07:00 AM" },
-‎  { code: "777", desc: "07:00 AM - 06:00 PM" },
-‎  { code: "778", desc: "11:00 AM - 12:30 PM" },
-‎  { code: "779", desc: "10:40 PM - 09:10 AM" },
-‎  { code: "780", desc: "04:30 AM - 01:30 PM" },
-‎  { code: "781", desc: "08:30 AM - 01:00 AM" },
-‎  { code: "782", desc: "07:30 AM - 01:00 AM" },
-‎  { code: "783", desc: "05:00 PM - 09:00 PM" },
-‎  { code: "791", desc: "06:00 PM - 03:00 AM" },
-‎  { code: "792", desc: "12:00 PM - 04:00 AM" },
-‎  { code: "794", desc: "02:30 AM - 06:00 PM" },
-‎  { code: "795", desc: "04:30 PM - 07:30 PM" },
-‎  { code: "796", desc: "05:00 PM - 04:00 AM" },
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shift Codes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 10px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #007bff;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .container {
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
 
-‎	];
-‎/ Parse "hh:mm AM/PM" to minutes since midnight
-‎function parseTime(str){
-‎  const [time,ampm]=str.split(" ");
-‎  let [h,m]=time.split(":").map(Number);
-‎  if(ampm==="PM"&&h!==12)h+=12;
-‎  if(ampm==="AM"&&h===12)h=0;
-‎  return h*60+m;
-‎}
-‎
-‎function renderTable(data){
-‎  const tbody=document.querySelector("#shiftTable tbody");
-‎  tbody.innerHTML="";
-‎  data.forEach(s=>{
-‎	let dur="";let type="";
-‎	if(s.desc.toLowerCase().includes("day-off")){
-‎  	dur="—"; type="—";
-‎	} else {
-‎  	const [start,end]=s.desc.split(" - ");
-‎  	const st=parseTime(start), et=parseTime(end);
-‎  	let diff=et-st; let overnight=false;
-‎  	if(diff<=0){ diff+=1440; overnight=true; }
-‎  	const h=Math.floor(diff/60), m=diff%60;
-‎  	dur=`${h}h ${m}m`;
-‎  	type=overnight? `<span class="badge overnight">Overnight</span>`:`<span class="badge ok">Normal</span>`;
-‎	}
-‎	const tr=document.createElement("tr");
-‎	tr.innerHTML=`
-‎  	<td class="mono">${s.code}</td>
-‎  	<td>${s.desc}</td>
-‎  	<td>${dur}</td>
-‎  	<td>${type}</td>`;
-‎	tbody.appendChild(tr);
-‎  });
-‎  document.getElementById("count").textContent=`${data.length} shift codes`;
-‎}
-‎
-‎let current=shifts.slice();
-‎renderTable(current);
-‎
-‎// Search
-‎document.getElementById("search").addEventListener("input",e=>{
-‎  const q=e.target.value.toLowerCase();
-‎  current=shifts.filter(s=>s.code.toLowerCase().includes(q)||s.desc.toLowerCase().includes(q));
-‎  renderTable(current);
-‎});
-‎
-‎// Reset
-‎document.getElementById("reset").addEventListener("click",()=>{
-‎  document.getElementById("search").value="";
-‎  current=shifts.slice();
-‎  renderTable(current);
-‎});
-‎
-‎// Sort
-‎document.querySelectorAll("thead th[data-sort]").forEach(th=>{
-‎  let asc=true;
-‎  th.addEventListener("click",()=>{
-‎	const key=th.getAttribute("data-sort");
-‎	current.sort((a,b)=>{
-‎  	if(key==="code")return asc? a.code.localeCompare(b.code): b.code.localeCompare(a.code);
-‎  	return asc? a.desc.localeCompare(b.desc): b.desc.localeCompare(a.desc);
-‎	});
-‎	asc=!asc;
-‎	renderTable(current);
-‎  });
-‎});
-‎
-‎// Export
-‎document.getElementById("export").addEventListener("click",()=>{
-‎  let csv="Code,Description\n";
-‎  current.forEach(s=>{ csv+=`"${s.code}","${s.desc}"\n`; });
-‎  const blob=new Blob([csv],{type:"text/csv"});
-‎  const url=URL.createObjectURL(blob);
-‎  const a=document.createElement("a");
-‎  a.href=url;a.download="shifts.csv";a.click();
-‎  URL.revokeObjectURL(url);
-‎});
-‎</script>
-‎</body>
-‎</html>
-‎
+  <h1>All Shift Codes</h1>
 
+  <div class="container">
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>721</td><td>03:30 AM - 02:00 AM</td></tr>
+        <tr><td>722</td><td>01:00 PM - 03:00 AM</td></tr>
+        <tr><td>723</td><td>02:30 PM - 08:00 PM</td></tr>
+        <tr><td>724</td><td>07:00 PM - 11:00 PM</td></tr>
+        <tr><td>725</td><td>09:00 AM - 01:00 PM</td></tr>
+        <tr><td>727</td><td>10:30 AM - 11:30 PM</td></tr>
+        <tr><td>728</td><td>12:30 PM - 11:30 PM</td></tr>
+        <tr><td>729</td><td>10:00 AM - 02:00 AM</td></tr>
+        <tr><td>730</td><td>02:00 PM - 04:00 AM</td></tr>
+        <tr><td>732</td><td>12:00 PM - 12:00 AM</td></tr>
+        <tr><td>733</td><td>06:00 PM - 08:00 PM</td></tr>
+        <tr><td>735</td><td>12:00 AM - 06:00 PM</td></tr>
+        <tr><td>738</td><td>09:30 AM - 03:30 PM</td></tr>
+        <tr><td>739</td><td>02:00 PM - 05:00 PM</td></tr>
+        <tr><td>740</td><td>11:30 AM - 05:00 PM</td></tr>
+        <tr><td>741</td><td>08:30 AM - 10:00 PM</td></tr>
+        <tr><td>743</td><td>08:30 PM - 06:00 AM</td></tr>
+        <tr><td>744</td><td>02:30 PM - 12:00 AM</td></tr>
+        <tr><td>745</td><td>04:00 AM - 06:30 PM</td></tr>
+        <tr><td>746</td><td>05:00 PM - 09:30 AM</td></tr>
+        <tr><td>747</td><td>06:00 PM - 08:00 AM</td></tr>
+        <tr><td>748</td><td>05:00 PM - 02:30 AM</td></tr>
+        <tr><td>749</td><td>03:00 AM - 09:00 PM</td></tr>
+        <tr><td>750</td><td>10:30 AM - 01:00 AM</td></tr>
+        <tr><td>751</td><td>12:00 AM - 08:30 PM</td></tr>
+        <tr><td>752</td><td>08:00 AM - 02:00 AM</td></tr>
+        <tr><td>1014</td><td>08:00 AM - 05:36 PM</td></tr>
+        <tr><td>1015</td><td>07:30 AM - 05:21 PM</td></tr>
+        <tr><td>1016</td><td>07:30 AM - 05:06 PM</td></tr>
+        <tr><td>1017</td><td>07:45 AM - 05:36 PM</td></tr>
+        <tr><td>1018</td><td>06:00 AM - 04:00 PM</td></tr>
+        <tr><td>1019</td><td>06:00 AM - 03:30 PM</td></tr>
+        <tr><td>1020</td><td>04:00 AM - 02:36 PM</td></tr>
+        <tr><td>1021</td><td>10:00 AM - 08:36 PM</td></tr>
+        <tr><td>1022</td><td>11:00 AM - 09:36 PM</td></tr>
+        <tr><td>1023</td><td>10:45 AM - 10:45 PM</td></tr>
+        <tr><td>1024</td><td>07:45 AM - 06:00 PM</td></tr>
+        <tr><td>1025</td><td>07:30 AM - 05:45 PM</td></tr>
+        <tr><td>1049</td><td>06:45 AM - 04:36 PM</td></tr>
+        <tr><td>1086</td><td>04:00 PM - 01:36 AM</td></tr>
+        <tr><td>1087</td><td>12:00 PM - 09:36 AM</td></tr>
+        <tr><td>1089</td><td>10:00 AM - 07:36 PM</td></tr>
+        <tr><td>1</td><td>DAY-OFF</td></tr>
+        <tr><td>8</td><td>09:45 AM - 06:45 PM</td></tr>
+        <tr><td>9</td><td>10:00 AM - 07:00 PM</td></tr>
+        <tr><td>10</td><td>10:30 AM - 07:30 PM</td></tr>
+        <tr><td>11</td><td>11:00 AM - 08:00 PM</td></tr>
+        <tr><td>12</td><td>11:30 AM - 08:30 PM</td></tr>
+        <tr><td>13</td><td>12:00 PM - 09:00 PM</td></tr>
+        <tr><td>14</td><td>12:30 PM - 09:30 PM</td></tr>
+        <tr><td>15</td><td>01:00 PM - 10:00 PM</td></tr>
+        <tr><td>16</td><td>07:00 AM - 04:00 PM</td></tr>
+        <tr><td>21</td><td>12:00 AM - 09:00 AM</td></tr>
+        <tr><td>22</td><td>09:00 AM - 06:00 PM</td></tr>
+        <tr><td>45</td><td>09:30 AM - 06:30 PM</td></tr>
+        <tr><td>46</td><td>11:30 AM - 08:30 PM</td></tr>
+        <tr><td>47</td><td>08:30 AM - 05:30 PM</td></tr>
+        <tr><td>48</td><td>09:15 AM - 06:15 PM</td></tr>
+        <tr><td>53</td><td>01:00 PM - 10:00 PM</td></tr>
+        <tr><td>54</td><td>01:30 PM - 10:30 PM</td></tr>
+        <tr><td>55</td><td>07:30 AM - 04:30 PM</td></tr>
+        <tr><td>71</td><td>08:00 AM - 05:00 PM</td></tr>
+        <tr><td>75</td><td>03:00 PM - 12:00 AM</td></tr>
+        <tr><td>78</td><td>09:50 AM - 06:50 PM</td></tr>
+        <tr><td>79</td><td>12:20 PM - 09:20 PM</td></tr>
+        <tr><td>80</td><td>12:15 PM - 09:15 PM</td></tr>
+        <tr><td>81</td><td>09:20 AM - 06:20 PM</td></tr>
+        <tr><td>83</td><td>11:45 AM - 08:45 PM</td></tr>
+        <tr><td>84</td><td>11:15 AM - 08:15 PM</td></tr>
+        <tr><td>85</td><td>12:40 PM - 09:40 PM</td></tr>
+        <tr><td>86</td><td>09:35 AM - 06:35 PM</td></tr>
+        <tr><td>87</td><td>12:55 PM - 09:55 PM</td></tr>
+        <tr><td>88</td><td>09:25 AM - 06:25 PM</td></tr>
+        <tr><td>89</td><td>11:10 AM - 08:10 PM</td></tr>
+        <tr><td>90</td><td>01:05 PM - 10:05 PM</td></tr>
+        <tr><td>91</td><td>08:45 AM - 05:45 PM</td></tr>
+        <tr><td>92</td><td>12:25 PM - 09:25 PM</td></tr>
+        <tr><td>93</td><td>10:45 AM - 07:45 PM</td></tr>
+        <tr><td>95</td><td>01:20 PM - 10:20 PM</td></tr>
+        <tr><td>96</td><td>01:15 PM - 10:15 PM</td></tr>
+        <tr><td>97</td><td>11:20 AM - 08:20 PM</td></tr>
+        <tr><td>98</td><td>06:00 AM - 03:00 PM</td></tr>
+        <tr><td>108</td><td>12:50 PM - 09:50 PM</td></tr>
+        <tr><td>111</td><td>12:20 PM - 09:20 PM</td></tr>
+        <tr><td>119</td><td>08:25 AM - 05:25 PM</td></tr>
+        <tr><td>120</td><td>10:25 AM - 07:25 PM</td></tr>
+        <tr><td>122</td><td>12:10 PM - 09:10 PM</td></tr>
+        <tr><td>123</td><td>12:45 PM - 09:45 PM</td></tr>
+        <tr><td>139</td><td>12:45 PM - 09:45 PM</td></tr>
+        <tr><td>140</td><td>01:15 PM - 10:15 PM</td></tr>
+        <tr><td>142</td><td>01:00 PM - 10:00 PM</td></tr>
+        <tr><td>157</td><td>09:40 AM - 06:40 PM</td></tr>
+        <tr><td>158</td><td>12:50 PM - 09:20 PM</td></tr>
+        <tr><td>159</td><td>02:00 PM - 11:00 PM</td></tr>
+        <tr><td>160</td><td>02:30 PM - 11:30 PM</td></tr>
+        <tr><td>171</td><td>03:30 PM - 12:30 AM</td></tr>
+        <tr><td>177</td><td>06:30 AM - 03:30 PM</td></tr>
+        <tr><td>202</td><td>05:30 AM - 02:30 PM</td></tr>
+        <tr><td>206</td><td>05:30 AM - 02:30 PM</td></tr>
+        <tr><td>215</td><td>05:00 AM - 02:00 PM</td></tr>
+        <tr><td>229</td><td>01:15 PM - 10:15 PM</td></tr>
+        <tr><td>231</td><td>08:35 AM - 05:35 PM</td></tr>
+        <tr><td>252</td><td>09:40 AM - 06:40 PM</td></tr>
+        <tr><td>255</td><td>08:15 AM - 05:15 PM</td></tr>
+        <tr><td>261</td><td>10:50 AM - 07:50 PM</td></tr>
+        <tr><td>266</td><td>08:20 AM - 05:20 PM</td></tr>
+        <tr><td>276</td><td>08:50 AM - 05:50 PM</td></tr>
+        <tr><td>279</td><td>09:55 AM - 06:55 PM</td></tr>
+        <tr><td>280</td><td>12:05 PM - 09:05 PM</td></tr>
+        <tr><td>285</td><td>04:00 AM - 01:00 PM</td></tr>
+        <tr><td>317</td><td>10:55 AM - 07:55 PM</td></tr>
+        <tr><td>324</td><td>10:15 AM - 07:15 PM</td></tr>
+        <tr><td>325</td><td>08:40 AM - 05:40 PM</td></tr>
+        <tr><td>1057</td><td>06:45 AM - 05:00 PM</td></tr>
+        <tr><td>1058</td><td>07:00 AM - 06:36 PM</td></tr>
+        <tr><td>1059</td><td>07:00 AM - 07:06 PM</td></tr>
+        <tr><td>1060</td><td>03:00 PM - 12:51 PM</td></tr>
+        <tr><td>1062</td><td>03:30 AM - 11:30 PM</td></tr>
+        <tr><td>1063</td><td>01:00 PM - 10:36 PM</td></tr>
+        <tr><td>1065</td><td>07:00 AM - 06:00 PM</td></tr>
+        <tr><td>1066</td><td>09:30 PM - 08:30 AM</td></tr>
+        <tr><td>1068</td><td>06:45 AM - 05:45 PM</td></tr>
+        <tr><td>1069</td><td>07:45 AM - 06:03 PM</td></tr>
+        <tr><td>1070</td><td>05:00 AM - 06:00 PM</td></tr>
+        <tr><td>1072</td><td>07:10 AM - 06:00 PM</td></tr>
+        <tr><td>1073</td><td>07:15 AM - 06:00 PM</td></tr>
+        <tr><td>1074</td><td>07:21 AM - 06:00 PM</td></tr>
+        <tr><td>1075</td><td>07:18 AM - 05:36 PM</td></tr>
+        <tr><td>1076</td><td>09:00 AM - 08:06 PM</td></tr>
+        <tr><td>1077</td><td>06:55 AM - 05:45 PM</td></tr>
+        <tr><td>1078</td><td>07:20 AM - 05:45 PM</td></tr>
+        <tr><td>1079</td><td>07:00 AM - 05:45 PM</td></tr>
+        <tr><td>1080</td><td>07:05 AM - 05:45 PM</td></tr>
+        <tr><td>1081</td><td>07:06 AM - 06:00 PM</td></tr>
+        <tr><td>1082</td><td>06:10 AM - 05:00 PM</td></tr>
+        <tr><td>1083</td><td>06:15 AM - 05:00 PM</td></tr>
+        <tr><td>1084</td><td>06:21 AM - 05:00 PM</td></tr>
+        <tr><td>1085</td><td>07:06 AM - 05:45 PM</td></tr>
+        <tr><td>1091</td><td>06:30 AM - 05:06 PM</td></tr>
+        <tr><td>806</td><td>04:30 PM - 02:00 AM</td></tr>
+        <tr><td>807</td><td>07:00 PM - 07:00 AM</td></tr>
+        <tr><td>811</td><td>03:00 AM - 12:30 AM</td></tr>
+        <tr><td>812</td><td>08:00 AM - 04:00 PM</td></tr>
+        <tr><td>813</td><td>08:00 AM - 04:00 PM</td></tr>
+        <tr><td>814</td><td>09:30 AM - 04:30 PM</td></tr>
+        <tr><td>815</td><td>09:30 AM - 05:30 PM</td></tr>
+        <tr><td>818</td><td>09:30 AM - 07:00 PM</td></tr>
+        <tr><td>819</td><td>01:30 PM - 05:30 PM</td></tr>
+        <tr><td>821</td><td>12:00 AM - 05:00 PM</td></tr>
+        <tr><td>825</td><td>06:30 PM - 05:00 AM</td></tr>
+        <tr><td>826</td><td>06:00 PM - 05:00 AM</td></tr>
+        <tr><td>827</td><td>12:30 PM - 02:30 PM</td></tr>
+        <tr><td>829</td><td>08:30 AM - 10:30 PM</td></tr>
+        <tr><td>833</td><td>09:00 AM - 02:00 PM</td></tr>
+        <tr><td>834</td><td>09:45 AM - 01:45 AM</td></tr>
+        <tr><td>835</td><td>09:45 AM - 02:45 AM</td></tr>
+        <tr><td>838</td><td>09:45 AM - 12:45 AM</td></tr>
+        <tr><td>840</td><td>09:00 AM - 03:30 AM</td></tr>
+        <tr><td>842</td><td>10:45 AM - 09:00 PM</td></tr>
+        <tr><td>843</td><td>10:45 AM - 10:00 PM</td></tr>
+        <tr><td>844</td><td>11:00 AM - 03:30 AM</td></tr>
+        <tr><td>845</td><td>11:00 AM - 03:30 AM</td></tr>
+        <tr><td>848</td><td>08:30 PM - 05:30 AM</td></tr>
+        <tr><td>1010</td><td>06:00 AM - 04:36 PM</td></tr>
+        <tr><td>1011</td><td>07:00 AM - 04:36 PM</td></tr>
+        <tr><td>373</td><td>10:00 PM - 07:00 AM</td></tr>
+        <tr><td>374</td><td>02:20 PM - 11:20 PM</td></tr>
+        <tr><td>376</td><td>09:20 AM - 06:20 PM</td></tr>
+        <tr><td>378</td><td>07:00 AM - 04:00 PM</td></tr>
+        <tr><td>381</td><td>07:35 AM - 04:35 PM</td></tr>
+        <tr><td>382</td><td>01:45 PM - 10:45 PM</td></tr>
+        <tr><td>383</td><td>01:15 PM - 10:15 PM</td></tr>
+        <tr><td>384</td><td>02:15 PM - 11:15 PM</td></tr>
+        <tr><td>386</td><td>08:10 AM - 05:10 PM</td></tr>
+        <tr><td>387</td><td>07:55 AM - 04:55 PM</td></tr>
+        <tr><td>388</td><td>07:15 AM - 04:15 PM</td></tr>
+        <tr><td>390</td><td>03:00 PM - 12:00 AM</td></tr>
+        <tr><td>395</td><td>01:50 PM - 10:50 PM</td></tr>
+        <tr><td>403</td><td>06:45 AM - 03:45 PM</td></tr>
+        <tr><td>404</td><td>03:10 PM - 12:10 AM</td></tr>
+        <tr><td>407</td><td>01:15 PM - 10:15 PM</td></tr>
+        <tr><td>412</td><td>03:15 PM - 12:15 AM</td></tr>
+        <tr><td>416</td><td>10:20 AM - 07:20 PM</td></tr>
+        <tr><td>418</td><td>05:00 PM - 02:00 AM</td></tr>
+        <tr><td>419</td><td>07:45 AM - 04:45 PM</td></tr>
+        <tr><td>421</td><td>11:35 AM - 08:35 PM</td></tr>
+        <tr><td>424</td><td>02:00 AM - 11:00 AM</td></tr>
+        <tr><td>425</td><td>01:00 AM - 11:00 AM</td></tr>
+        <tr><td>429</td><td>11:00 PM - 08:00 AM</td></tr>
+        <tr><td>430</td><td>07:00 PM - 04:00 AM</td></tr>
+        <tr><td>755</td><td>11:30 AM - 03:30 AM</td></tr>
+        <tr><td>758</td><td>12:00 PM - 01:00 AM</td></tr>
+        <tr><td>760</td><td>11:00 AM - 11:00 AM</td></tr>
+        <tr><td>761</td><td>11:30 AM - 02:30 AM</td></tr>
+        <tr><td>762</td><td>11:30 AM - 10:30 AM</td></tr>
+        <tr><td>763</td><td>02:00 PM - 03:30 AM</td></tr>
+        <tr><td>764</td><td>02:30 PM - 03:30 AM</td></tr>
+        <tr><td>765</td><td>10:30 AM - 03:30 AM</td></tr>
+        <tr><td>766</td><td>02:00 PM - 03:30 AM</td></tr>
+        <tr><td>767</td><td>07:00 AM - 12:00 PM</td></tr>
+        <tr><td>768</td><td>08:00 AM - 12:00 PM</td></tr>
+        <tr><td>774</td><td>09:00 AM - 01:30 PM</td></tr>
+        <tr><td>775</td><td>05:30 PM - 07:30 AM</td></tr>
+        <tr><td>776</td><td>06:00 PM - 07:00 AM</td></tr>
+        <tr><td>777</td><td>07:00 AM - 06:00 PM</td></tr>
+        <tr><td>778</td><td>11:00 AM - 12:30 PM</td></tr>
+        <tr><td>779</td><td>10:40 PM - 09:10 AM</td></tr>
+        <tr><td>780</td><td>04:30 AM - 01:30 PM</td></tr>
+        <tr><td>781</td><td>08:30 AM - 01:00 AM</td></tr>
+        <tr><td>782</td><td>07:30 AM - 01:00 AM</td></tr>
+        <tr><td>783</td><td>05:00 PM - 09:00 PM</td></tr>
+        <tr><td>791</td><td>06:00 PM - 03:00 AM</td></tr>
+        <tr><td>792</td><td>12:00 PM - 04:00 AM</td></tr>
+        <tr><td>794</td><td>02:30 AM - 06:00 PM</td></tr>
+        <tr><td>795</td><td>04:30 PM - 07:30 PM</td></tr>
+        <tr><td>796</td><td>05:00 PM - 04:00 AM</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>
