@@ -1,63 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shift Codes</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 10px 15px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background: #007bff;
-      color: #fff;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-    }
-    tr:nth-child(even) {
-      background: #f9f9f9;
-    }
-    .container {
-      max-height: 80vh;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shift Codes</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f7fa;
+  margin: 0;
+  padding: 20px;
+  transition: 0.3s;
+}
+
+.dark {
+  background: #1e1e1e;
+  color: #fff;
+}
+
+h1 {
+  text-align: center;
+}
+
+.controls {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+input, select, button {
+  padding: 8px;
+  margin: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.dark table {
+  background: #2b2b2b;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background: #007bff;
+  color: white;
+  position: sticky;
+  top: 0;
+}
+
+.container {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.highlight {
+  background: yellow;
+  font-weight: bold;
+}
+</style>
 </head>
+
 <body>
 
-  <h1>All Shift Codes</h1>
+<h1>Shift Codes</h1>
 
-  <div class="container">
-    <table>
-      <thead>
-        <tr>
-          <th>Code</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>721</td><td>03:30 AM - 02:00 AM</td></tr>
+<div class="controls">
+  <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterTable()">
+
+  <select id="filterType" onchange="filterTable()">
+    <option value="all">All</option>
+    <option value="am">Morning (AM)</option>
+    <option value="pm">Afternoon (PM)</option>
+    <option value="night">Night</option>
+    <option value="off">Day-Off</option>
+  </select>
+
+  <button onclick="sortTable()">Sort Code 🔃</button>
+  <button onclick="toggleDark()">🌙 Dark Mode</button>
+  <button onclick="exportCSV()">Export CSV</button>
+</div>
+
+<div class="container">
+<table id="shiftTable">
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+
+<tr><td>721</td><td>03:30 AM - 02:00 AM</td></tr>
         <tr><td>722</td><td>01:00 PM - 03:00 AM</td></tr>
         <tr><td>723</td><td>02:30 PM - 08:00 PM</td></tr>
         <tr><td>724</td><td>07:00 PM - 11:00 PM</td></tr>
@@ -273,9 +325,94 @@
         <tr><td>794</td><td>02:30 AM - 06:00 PM</td></tr>
         <tr><td>795</td><td>04:30 PM - 07:30 PM</td></tr>
         <tr><td>796</td><td>05:00 PM - 04:00 AM</td></tr>
-      </tbody>
-    </table>
-  </div>
+
+</tbody>
+</table>
+</div>
+
+<script>
+let asc = true;
+
+function filterTable() {
+  let input = document.getElementById("searchInput").value.toLowerCase();
+  let filter = document.getElementById("filterType").value;
+  let rows = document.querySelectorAll("#shiftTable tbody tr");
+
+  rows.forEach(row => {
+    let code = row.cells[0].textContent;
+    let desc = row.cells[1].textContent;
+    let text = (code + " " + desc).toLowerCase();
+
+    row.cells[0].innerHTML = code;
+    row.cells[1].innerHTML = desc;
+
+    let matchSearch = text.includes(input);
+    let matchFilter = true;
+
+    if (filter === "am") matchFilter = desc.includes("AM");
+    if (filter === "pm") matchFilter = desc.includes("PM");
+    if (filter === "night") matchFilter = desc.includes("PM") && desc.includes("AM");
+    if (filter === "off") matchFilter = desc.includes("OFF");
+
+    if (matchSearch && matchFilter) {
+      row.style.display = "";
+
+      if (input) {
+        highlight(row.cells[0], input);
+        highlight(row.cells[1], input);
+      }
+
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
+
+function highlight(cell, text) {
+  let regex = new RegExp(`(${text})`, "gi");
+  cell.innerHTML = cell.textContent.replace(regex, '<span class="highlight">$1</span>');
+}
+
+function sortTable() {
+  let table = document.getElementById("shiftTable").tBodies[0];
+  let rows = Array.from(table.rows);
+
+  rows.sort((a, b) => {
+    let x = parseInt(a.cells[0].textContent);
+    let y = parseInt(b.cells[0].textContent);
+    return asc ? x - y : y - x;
+  });
+
+  asc = !asc;
+
+  rows.forEach(row => table.appendChild(row));
+}
+
+function toggleDark() {
+  document.body.classList.toggle("dark");
+}
+
+function exportCSV() {
+  let rows = document.querySelectorAll("#shiftTable tr");
+  let csv = [];
+
+  rows.forEach(row => {
+    let cols = row.querySelectorAll("td, th");
+    let rowData = [];
+
+    cols.forEach(col => rowData.push(col.innerText));
+    csv.push(rowData.join(","));
+  });
+
+  let blob = new Blob([csv.join("\n")], { type: "text/csv" });
+  let url = window.URL.createObjectURL(blob);
+
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = "shift_codes.csv";
+  a.click();
+}
+</script>
 
 </body>
 </html>
